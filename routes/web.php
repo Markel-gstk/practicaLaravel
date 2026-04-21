@@ -19,6 +19,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/idea', [IdeaController::class, 'index'])->name('idea.index');
+Route::get('/idea/crear', [IdeaController::class, 'create'])->name('idea.create');
+Route::post('/idea/crear', [IdeaController::class, 'store'])->name('idea.store');
 
 
 require __DIR__.'/auth.php';
