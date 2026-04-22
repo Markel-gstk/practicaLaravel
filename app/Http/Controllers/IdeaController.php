@@ -32,9 +32,10 @@ class IdeaController extends Controller
 
 
 
-    public function index(){
+    public function index(Request $request) : View
+    {
 
-        $ideas = Idea::get();
+        $ideas = Idea::myIdeas($request->filtro)->theBest($request->filtro)->get();
         return view('idea.index', ['ideas'=> $ideas]);
     }
 
