@@ -10,6 +10,8 @@ class Idea extends Model
 {
     protected $fillable = ['user_id', 'title', 'description', 'likes'];
 
+    protected $casts = ['created_at' => 'datetime'];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
