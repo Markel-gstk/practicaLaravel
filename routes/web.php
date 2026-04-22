@@ -22,6 +22,9 @@ Route::get('/idea', [IdeaController::class, 'index'])->name('idea.index');
 Route::get('/idea/crear', [IdeaController::class, 'create'])->name('idea.create');
 Route::post('/idea/crear', [IdeaController::class, 'store'])->name('idea.store');
 Route::get('/idea/editar/{idea}', [IdeaController::class, 'edit'])->name('idea.edit');
+Route::put('/idea/actualizar/{idea}', [IdeaController::class, 'update'])->name('idea.update');
+Route::get('/idea/{idea}', [IdeaController::class, 'show'])->name('idea.show');
+Route::delete('/idea/{idea}', [IdeaController::class, 'delete'])->name('idea.delete');
 
 
 require __DIR__.'/auth.php';

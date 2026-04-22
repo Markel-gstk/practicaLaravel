@@ -7,9 +7,29 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
 
 class IdeaController extends Controller
 {
+
+    private array $validationRules = [
+        'title' => 'required|string|max:100',
+        'description' => 'required|string|max:300' 
+    ];
+
+    
+    private array $errorMessages = [
+        'title.required' => 'El campo titulo es obligatorio',
+        'description.required' => 'El campo descripcion es obligatorio',
+        'titulo.string' => 'El campo titulo es debe ser de tipo string',
+        'description.string' => 'El campo descripcion debe ser de tipo string',
+        'string' => 'Este campo debe ser de tipo string',
+        'title.max' => 'El campo :atribute no de debe ser mayor que 100',
+        'description.max' => 'El campo :atribute no de debe ser mayor que 300'
+    ];
+
+
+
     public function index(){
 
         $ideas = Idea::get();
@@ -18,15 +38,16 @@ class IdeaController extends Controller
 
     public function create() : View
     {
+
+        
+
         return view('idea.create_or_edit');
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $validated=$request->validate([
-            'title' => 'required|string|max:100',
-            'description' => 'required|string|max:300'
-        ]);
+        $validated=$request->validate($this->validationRules, $this->errorMessages);
+        Log::info("Mensaje de error guardado correctamente en la variable");
 
         Idea::create([
            
@@ -36,11 +57,42 @@ class IdeaController extends Controller
                    
         ]);
 
+
+        session()->flash('message', 'Idea creada correctamente!');
+
         return redirect()->route('idea.index');
     }
 
     public function edit(Idea $idea): View
     {  
-        return view('ideas.create_or_edit')->with('idea', $idea);
+
+        //session()->flash('message', 'Idea editada correctamente!');
+
+        return view('idea.create_or_edit')->with('idea', $idea);
+    }
+
+    public function update(Request $request, Idea $idea) : RedirectResponse
+    {
+        $validated=$request->validate($this->validationRules, $this->errorMessages);
+
+        $idea->update($validated);
+
+        session()->flash('message', 'Idea editada correctamente!');
+
+        return redirect(route('idea.index'));
+    }
+
+    public function show(Idea $idea) : View
+    {
+        return view('idea.show')->with('idea', $idea);
+    }
+
+    public function delete(Idea $idea) : RedirectResponse
+    {
+        $idea->delete();
+
+        session()->flash('message', 'Idea eliminada correctamente!');
+
+        return redirect()->route('idea.index');
     }
 }
