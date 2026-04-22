@@ -41,4 +41,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Idea::class);
     }
+
+    public function iLikeIt($ideaId): bool
+    {
+        return $this->ideasUsers()->where('idea_id', $ideaId)->exists();
+    }
 }

@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class IdeaController extends Controller
 {
@@ -67,12 +69,14 @@ class IdeaController extends Controller
     {  
 
         //session()->flash('message', 'Idea editada correctamente!');
-
+        $this->authorize( 'update', $idea);
         return view('idea.create_or_edit')->with('idea', $idea);
     }
 
     public function update(Request $request, Idea $idea) : RedirectResponse
     {
+        $this->authorize( 'update', $idea);    
+
         $validated=$request->validate($this->validationRules, $this->errorMessages);
 
         $idea->update($validated);
@@ -89,10 +93,21 @@ class IdeaController extends Controller
 
     public function delete(Idea $idea) : RedirectResponse
     {
+        $this->authorize( 'delete', $idea);
+
         $idea->delete();
 
         session()->flash('message', 'Idea eliminada correctamente!');
 
         return redirect()->route('idea.index');
+    }
+
+    public function synchronizeLikes(Request $request, Idea $idea)
+    {   
+        $request->user()->ideasUsers()->toggle([$idea->id]);
+
+        $idea->update(['likes'=>$idea->usersIdeas()->count()]);
+
+        return redirect()->route('idea.show', $idea);
     }
 }

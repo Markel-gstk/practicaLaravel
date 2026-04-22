@@ -25,6 +25,7 @@ Route::get('/idea/editar/{idea}', [IdeaController::class, 'edit'])->name('idea.e
 Route::put('/idea/actualizar/{idea}', [IdeaController::class, 'update'])->name('idea.update');
 Route::get('/idea/{idea}', [IdeaController::class, 'show'])->name('idea.show');
 Route::delete('/idea/{idea}', [IdeaController::class, 'delete'])->name('idea.delete');
+Route::put('/idea/{idea}', [IdeaController::class, 'synchronizeLikes'])->name('idea.like');
 
 
 require __DIR__.'/auth.php';
