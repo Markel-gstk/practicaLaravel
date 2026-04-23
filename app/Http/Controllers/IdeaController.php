@@ -105,6 +105,8 @@ class IdeaController extends Controller
 
     public function synchronizeLikes(Request $request, Idea $idea)
     {   
+        $this->authorize('updateLikes', $idea);
+
         $request->user()->ideasUsers()->toggle([$idea->id]);
 
         $idea->update(['likes'=>$idea->usersIdeas()->count()]);
