@@ -92,25 +92,39 @@ class IdeaController extends Controller
         return view('idea.show')->with('idea', $idea);
     }
 
-    public function delete(Idea $idea) : RedirectResponse
+    public function delete(Idea $idea)
     {
+    
         $this->authorize( 'delete', $idea);
 
         $idea->delete();
 
-        session()->flash('message', 'Idea eliminada correctamente!');
+        /*session()->flash('message', 'Idea eliminada correctamente!');
 
-        return redirect()->route('idea.index');
+        return redirect()->route('idea.index');*/
+        
+        return response()->json([
+            'success' => true,
+            'id' => $idea->id,
+            'message' => 'Idea eliminada correctamente!'
+        ]);
+
+        
     }
 
     public function synchronizeLikes(Request $request, Idea $idea)
     {   
         $this->authorize('updateLikes', $idea);
-
+    
         $request->user()->ideasUsers()->toggle([$idea->id]);
 
         $idea->update(['likes'=>$idea->usersIdeas()->count()]);
 
-        return redirect()->route('idea.show', $idea);
+        //return redirect()->route('idea.show', $idea);
+
+        return response()->json([
+            'likes'=>$idea->usersIdeas()->count(),
+            'liked'=>$idea->usersIdeas()->where('user_id', $request->user()->id)->exists(),
+        ]);
     }
 }
