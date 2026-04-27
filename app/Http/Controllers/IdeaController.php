@@ -10,6 +10,9 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Models\User;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class IdeaController extends Controller
 {
@@ -89,7 +92,13 @@ class IdeaController extends Controller
 
     public function show(Idea $idea) : View
     {
-        return view('idea.show')->with('idea', $idea);
+
+        $liked = Auth::check() ? Auth::user()->iLikeIt($idea->id) : false;
+
+        return view('idea.show', [
+            'idea'=> $idea,
+            'liked'=> $liked
+            ]);
     }
 
     public function delete(Idea $idea)
@@ -114,10 +123,12 @@ class IdeaController extends Controller
 
     public function synchronizeLikes(Request $request, Idea $idea)
     {   
+        Log::info("Controlador iniciado correctamente");
         $this->authorize('updateLikes', $idea);
     
         $request->user()->ideasUsers()->toggle([$idea->id]);
 
+        
         $idea->update(['likes'=>$idea->usersIdeas()->count()]);
 
         //return redirect()->route('idea.show', $idea);
@@ -127,4 +138,5 @@ class IdeaController extends Controller
             'liked'=>$idea->usersIdeas()->where('user_id', $request->user()->id)->exists(),
         ]);
     }
+
 }
