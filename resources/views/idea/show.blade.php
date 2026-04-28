@@ -9,12 +9,12 @@
                             <div class="mt-4 space-x-8">
                             @cannot('update', $idea)
                                 <div class="relative items-center justify-start w-48 h-10">
-                                    <svg id="icono-carga" class="hidden animate-spin w-4 h-4 text-white absolute transition-all duration-500 ease-in-out opacity-0 scale-110" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <svg id="icono-carga" class="hidden animate-spin z-10 w-4 h-4 text-white absolute transition-all duration-500 ease-in-out opacity-0 scale-110" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
 
-                                    <svg id="icono-exito" class="hidden w-5 h-5 text-white absolute transition-all duration-500 ease-in-out opacity-0 scale-110" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg id="icono-exito" class="hidden z-20 w-5 h-5 text-white absolute transition-all duration-500 ease-in-out opacity-0 scale-110" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                                     </svg>
 
@@ -31,8 +31,13 @@
                             @endcannot
                             @push('scripts')
                             <script>
+                                let likeRequestEnCurso;
                                 function mostrarIconoLike(id)
                                 {
+
+                                    if (likeRequestEnCurso) return;
+                                    likeRequestEnCurso = true;
+
                                     const likeBtn = document.getElementById('likeBtn');
                                     const dislikeBtn = document.getElementById('dislikeBtn');
                                     const iconoCarga = document.getElementById('icono-carga');
@@ -43,8 +48,10 @@
 
                                     const botonActivo = likeBtn.classList.contains('hidden') ? dislikeBtn : likeBtn;
 
-                                    botonActivo.classList.replace('opacity-100', 'opacity-0');
-                                    botonActivo.classList.replace('scale-100', 'scale-90');
+                                    botonActivo.classList.remove('opacity-100');
+                                    botonActivo.classList.add('opacity-0')
+                                    botonActivo.classList.remove('scale-100');
+                                    botonActivo.classList.add('scale-90');
                                     botonActivo.classList.add('hidden');
                                     botonActivo.classList.add('pointer-events-none');
 
@@ -58,45 +65,62 @@
                                             'Accept': 'application/json'
                                         },
                                         beforeSend: function(){
+                                            
+                                            iconoExito.classList.add('hidden');
+                                            iconoExito.classList.remove('opacity-100');
+                                            iconoExito.classList.add('opacity-0');
+
                                             iconoCarga.classList.remove('hidden');
+                                            iconoCarga.classList.remove('opacity-0');
                                             iconoCarga.classList.add('opacity-100');
                                         },
                                         success: function(data){
-
-                                            iconoCarga.classList.replace('opacity-100', 'opacity-0');
                                             iconoCarga.classList.add('hidden');
 
                                             setTimeout(() => {   
                                                 iconoExito.classList.remove('hidden');
+                                                iconoExito.classList.remove('opacity-0');
                                                 iconoExito.classList.add('opacity-100');
-                                            }, 300);
-                                            setTimeout(() => {
-                                                iconoExito.classList.replace('opacity-100', 'opacity-0');
+                                            
                                                 setTimeout(() => {
-                                                    iconoExito.classList.add('hidden');
-                                                }, 500);
-                                            }, 1000);
-
-
-                                            const proximoBoton = data.liked ? dislikeBtn : likeBtn; 
-                                            proximoBoton.classList.remove('hidden');
-                                            proximoBoton.classList.remove('pointer-events-none');
-                                            proximoBoton.classList.add('opacity-0', 'scale-90');
+                                                    iconoExito.classList.remove('opacity-100');
+                                                    iconoExito.classList.add('opacity-0');
+                                                    setTimeout(() => {
+                                                        iconoExito.classList.add('hidden');
+                                                    }, 500);
+                                                }, 1000);
+                                            }, 300);
 
                                             
+                                            const proximoBoton = data.liked ? dislikeBtn : likeBtn; 
                                             setTimeout(() => {
-                                                proximoBoton.classList.replace('opacity-0', 'opacity-100');
-                                                proximoBoton.classList.replace('scale-90', 'scale-100');
-                                            }, 50);
+                                                
+                                                proximoBoton.classList.remove('hidden');
+                                                proximoBoton.classList.remove('pointer-events-none');
+                                                proximoBoton.classList.add('opacity-0', 'scale-90');
+                                            }, 1500);
+                                            
+                                            setTimeout(() => {
+                                                proximoBoton.classList.remove('opacity-0');
+                                                proximoBoton.classList.add('opacity-100');
+                                                proximoBoton.classList.remove('scale-90');
+                                                proximoBoton.classList.add('scale-100');
+                                            }, 1550);
 
                                         },
 
                                         
-                                        error() {
+                                        error: function() {
                                             botonActivo.classList.remove('hidden', 'pointer-events-none');
-                                            botonActivo.classList.replace('opacity-0', 'opacity-100');
-                                            botonActivo.classList.replace('scale-90', 'scale-100');
+                                            botonActivo.classList.remove('opacity-0');
+                                            botonActivo.classList.add('opacity-100');
+                                            botonActivo.classList.remove('scale-90');
+                                            botonActivo.classList.add('scale-100');
                                         },
+
+                                        complete: function() {
+                                            likeRequestEnCurso = false;
+                                        }
 
                                     });                               
                                    
