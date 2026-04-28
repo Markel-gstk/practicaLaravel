@@ -38,22 +38,17 @@
                                     if (likeRequestEnCurso) return;
                                     likeRequestEnCurso = true;
 
-                                    const likeBtn = document.getElementById('likeBtn');
-                                    const dislikeBtn = document.getElementById('dislikeBtn');
-                                    const iconoCarga = document.getElementById('icono-carga');
-                                    const iconoExito = document.getElementById('icono-exito');
+                                    const likeBtn = $('#likeBtn');
+                                    const dislikeBtn = $('#dislikeBtn');
+                                    const iconoCarga = $('#iconoCarga');
+                                    const iconoExito = $('#iconoExito');
 
                                     console.log("Botón Like encontrado:", likeBtn);
                                     console.log("Botón Dislike encontrado:", dislikeBtn);
 
-                                    const botonActivo = likeBtn.classList.contains('hidden') ? dislikeBtn : likeBtn;
+                                    const botonActivo = likeBtn.hasClass('hidden') ? dislikeBtn : likeBtn;
 
-                                    botonActivo.classList.remove('opacity-100');
-                                    botonActivo.classList.add('opacity-0')
-                                    botonActivo.classList.remove('scale-100');
-                                    botonActivo.classList.add('scale-90');
-                                    botonActivo.classList.add('hidden');
-                                    botonActivo.classList.add('pointer-events-none');
+                                    botonActivo.removeClass('opacity-100', 'scale-100').addClass('opacity-0', 'scale-90', 'hidden', 'pointer-events-none');
 
                                     
                                     $.ajax({
@@ -66,27 +61,20 @@
                                         },
                                         beforeSend: function(){
                                             
-                                            iconoExito.classList.add('hidden');
-                                            iconoExito.classList.remove('opacity-100');
-                                            iconoExito.classList.add('opacity-0');
+                                            iconoExito.removeClass('opacity-100').addClass('hidden', 'opacity-0');
 
-                                            iconoCarga.classList.remove('hidden');
-                                            iconoCarga.classList.remove('opacity-0');
-                                            iconoCarga.classList.add('opacity-100');
+                                            iconoCarga.removeClass('hidden', 'opacity-0').addClass('opacity-100');
                                         },
                                         success: function(data){
-                                            iconoCarga.classList.add('hidden');
+                                            iconoCarga.caddClass('hidden');
 
                                             setTimeout(() => {   
-                                                iconoExito.classList.remove('hidden');
-                                                iconoExito.classList.remove('opacity-0');
-                                                iconoExito.classList.add('opacity-100');
+                                                iconoExito.removeClass('hidden', 'opacity-0').addClass('opacity-100');
                                             
                                                 setTimeout(() => {
-                                                    iconoExito.classList.remove('opacity-100');
-                                                    iconoExito.classList.add('opacity-0');
+                                                    iconoExito.removeClass('opacity-100').addClass('opacity-0');
                                                     setTimeout(() => {
-                                                        iconoExito.classList.add('hidden');
+                                                        iconoExito.addClass('hidden');
                                                     }, 500);
                                                 }, 1000);
                                             }, 300);
@@ -95,27 +83,17 @@
                                             const proximoBoton = data.liked ? dislikeBtn : likeBtn; 
                                             setTimeout(() => {
                                                 
-                                                proximoBoton.classList.remove('hidden');
-                                                proximoBoton.classList.remove('pointer-events-none');
-                                                proximoBoton.classList.add('opacity-0', 'scale-90');
+                                                proximoBoton.removeClass('hidden', 'pointer-events-none').addClass('opacity-0', 'scale-90');
                                             }, 1500);
                                             
                                             setTimeout(() => {
-                                                proximoBoton.classList.remove('opacity-0');
-                                                proximoBoton.classList.add('opacity-100');
-                                                proximoBoton.classList.remove('scale-90');
-                                                proximoBoton.classList.add('scale-100');
+                                                proximoBoton.removeClass('opacity-0', 'scale-90').addClass('opacity-100', 'scale-100');
                                             }, 1550);
 
                                         },
-
-                                        
+                
                                         error: function() {
-                                            botonActivo.classList.remove('hidden', 'pointer-events-none');
-                                            botonActivo.classList.remove('opacity-0');
-                                            botonActivo.classList.add('opacity-100');
-                                            botonActivo.classList.remove('scale-90');
-                                            botonActivo.classList.add('scale-100');
+                                            botonActivo.removeClass('hidden', 'pointer-events-none', 'opacity-0', 'scale-90').addClass('opacity-100', 'scale-100');
                                         },
 
                                         complete: function() {
