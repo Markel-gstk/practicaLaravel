@@ -35,11 +35,18 @@ class IdeaController extends Controller
 
 
 
-    public function index(Request $request) : View
+    public function index(Request $request, $api=false)
     {
 
-        $ideas = Idea::myIdeas($request->filtro)->theBest($request->filtro)->get();
-        return view('idea.index', ['ideas'=> $ideas]);
+        
+        
+        if(!$api){
+            $ideas = Idea::myIdeas($request->filtro)->theBest($request->filtro)->get();
+            return view('idea.index', ['ideas'=> $ideas]);
+        }else{
+            $ideas = Idea::all();
+            return response()->json($ideas);
+        }
     }
 
     public function create() : View
@@ -50,23 +57,44 @@ class IdeaController extends Controller
         return view('idea.create_or_edit');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, $api=false)
     {
         $validated=$request->validate($this->validationRules, $this->errorMessages);
         Log::info("Mensaje de error guardado correctamente en la variable");
 
-        Idea::create([
-           
-            'user_id' => $request->user()->id,   
-            'title' => $validated['title'],
-            'description' => $validated['description'], 
-                   
-        ]);
+        
+        
+        if(!$api){
+            $nuevaIdea = Idea::create([
+            
+                'user_id' => $request->user()->id,   
+                'title' => $validated['title'],
+                'description' => $validated['description'], 
+                    
+            ]);
+        }else{
+            $nuevaIdea = Idea::create([
+            
+                'user_id' => '2',   
+                'title' => $validated['title'],
+                'description' => $validated['description'], 
+                    
+            ]);
+        }
 
 
         session()->flash('message', 'Idea creada correctamente!');
+        
+        if(!$api){
+            return redirect()->route('idea.index');
+        }else{
+            return response() -> json([
+                'user_id' => '2',
+                'title'=> $validated['title'],
+                'description'=> $validated['description'],
 
-        return redirect()->route('idea.index');
+            ], 201);
+        }
     }
 
     public function edit(Idea $idea): View
@@ -75,37 +103,58 @@ class IdeaController extends Controller
         //session()->flash('message', 'Idea editada correctamente!');
         $this->authorize( 'update', $idea);
         return view('idea.create_or_edit')->with('idea', $idea);
+
     }
 
-    public function update(Request $request, Idea $idea) : RedirectResponse
+    public function update(Request $request, Idea $idea, $api=false)
     {
-        $this->authorize( 'update', $idea);    
-
+           
         $validated=$request->validate($this->validationRules, $this->errorMessages);
 
-        $idea->update($validated);
+        if(!$api){
+            
+            $this->authorize( 'update', $idea);
+            $idea->update($validated);
 
-        session()->flash('message', 'Idea editada correctamente!');
 
-        return redirect(route('idea.index'));
+            session()->flash('message', 'Idea editada correctamente!');
+
+            return redirect(route('idea.index'));
+
+        }else{
+
+            $idea->update($validated);
+            return response()->json([
+                'message' => 'Idea actualizada correctamente',
+                'idea' => $idea
+            ], 200);
+        
+        }    
     }
 
-    public function show(Idea $idea) : View
+    public function show(Idea $idea, $api=false)
     {
 
         $liked = Auth::check() ? Auth::user()->iLikeIt($idea->id) : false;
 
-        return view('idea.show', [
-            'idea'=> $idea,
-            'liked'=> $liked
+       
+        if(!$api){
+            return view('idea.show', [
+                'idea'=> $idea,
+                'liked'=> $liked
             ]);
+        }else{
+            return $idea = Idea::find( $idea->id );
+        }
+
+
     }
 
-    public function delete(Idea $idea)
+    public function delete(Idea $idea, $api=false)
     {
-    
-        $this->authorize( 'delete', $idea);
+        if(!$api){$this->authorize( 'delete', $idea);}
 
+        /** @var \Illuminate\Database\Eloquent\Model $idea */
         $idea->delete();
 
         /*session()->flash('message', 'Idea eliminada correctamente!');
