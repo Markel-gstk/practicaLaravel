@@ -144,7 +144,7 @@ class IdeaController extends Controller
                 'liked'=> $liked
             ]);
         }else{
-            return $idea = Idea::find( $idea->id );
+            return $idea = Idea::find($idea->id, ['*']);
         }
 
 
@@ -176,7 +176,6 @@ class IdeaController extends Controller
         $this->authorize('updateLikes', $idea);
     
         $request->user()->ideasUsers()->toggle([$idea->id]);
-
         
         $idea->update(['likes'=>$idea->usersIdeas()->count()]);
 
