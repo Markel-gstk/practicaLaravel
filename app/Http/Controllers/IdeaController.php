@@ -11,8 +11,9 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Models\User;
+//use App\Http\Models\User;
 use phpDocumentor\Reflection\Types\Boolean;
+use App\Models\User;
 
 class IdeaController extends Controller
 {
@@ -44,7 +45,18 @@ class IdeaController extends Controller
             $ideas = Idea::myIdeas($request->filtro)->theBest($request->filtro)->get();
             return view('idea.index', ['ideas'=> $ideas]);
         }else{
-            $ideas = Idea::all();
+            $query = Idea::query();
+
+            if ($request -> has('user_id')){
+                
+            if(!is_numeric($request->user_id)){return response()->json(['error' => 'Error, ingrese una id de usuario con un valor numerico'], 400);}
+
+            $usuario = User::find($request->user_id);
+            if(!$usuario){return response()->json(['error'=> 'Error, Usuario no encontrado'], 404);}
+
+            $query->where('user_id', $request -> user_id);}
+
+            $ideas = $query->get();
             return response()->json($ideas);
         }
     }
@@ -79,7 +91,7 @@ class IdeaController extends Controller
                 'title' => $validated['title'],
                 'description' => $validated['description'], 
                     
-            ]);
+            ]); 
         }
 
 

@@ -95,6 +95,8 @@ class ApiController extends Controller
      
         /** @var \App\Models\User $usuario */
         $usuario->save();
+
+        return response()->json(['success'=> 'Usuario actualizado correctamente'],200);
     }
 
     /**
