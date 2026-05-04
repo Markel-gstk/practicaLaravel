@@ -40,6 +40,15 @@ class ApiController extends Controller
 
     public function storeUser(Request $request)
     {
+        $request->validate([
+            'email'=>'required|email|unique:users,email',
+            'password'=> 'required|min:8'
+        ], [
+            'email.unique'=>'El correo electronico ya esta en uso.',
+            'email.required'=>'El correo electronico es obligatorio.',
+            'password.min'=>'La contraseña es muy corta (el minimo son 8 caracteres).'
+        ]);
+
         $usuario = new User();
         $usuario->name = $request->name;
         $usuario->email = $request->email;
