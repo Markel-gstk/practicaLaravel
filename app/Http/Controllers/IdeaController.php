@@ -51,11 +51,11 @@ class IdeaController extends Controller
                 
             if(!is_numeric($request->user_id)){return response()->json(['error' => 'Error, ingrese una id de usuario con un valor numerico'], 400);}
 
-            $usuario = User::find($request->user_id);
+            $usuario = User::find($request->user_id, ['*']);
             if(!$usuario){return response()->json(['error'=> 'Error, Usuario no encontrado'], 404);}
 
             $query->where('user_id', $request -> user_id);}
-
+    
             $ideas = $query->get();
             return response()->json($ideas);
         }
@@ -74,9 +74,28 @@ class IdeaController extends Controller
         $validated=$request->validate($this->validationRules, $this->errorMessages);
         Log::info("Mensaje de error guardado correctamente en la variable");
 
-        
+
+        $nuevaIdea = Idea::create([
+            
+            'user_id' => $request->user()->id,   
+            'title' => $validated['title'],
+            'description' => $validated['description'], 
+                    
+        ]);
+
+
+        session()->flash('message', 'Idea creada correctamente!');
         
         if(!$api){
+            return redirect()->route('idea.index');
+        }else{
+            return response()->json($nuevaIdea, 201);
+        }
+    }
+
+
+
+    /*if(!$api){
             $nuevaIdea = Idea::create([
             
                 'user_id' => $request->user()->id,   
@@ -92,23 +111,7 @@ class IdeaController extends Controller
                 'description' => $validated['description'], 
                     
             ]); 
-        }
-
-
-        session()->flash('message', 'Idea creada correctamente!');
-        
-        if(!$api){
-            return redirect()->route('idea.index');
-        }else{
-            return response() -> json([
-                'user_id' => '2',
-                'title'=> $validated['title'],
-                'description'=> $validated['description'],
-
-            ], 201);
-        }
-    }
-
+        }*/
     public function edit(Idea $idea): View
     {  
 
@@ -123,19 +126,17 @@ class IdeaController extends Controller
            
         $validated=$request->validate($this->validationRules, $this->errorMessages);
 
+        $this->authorize( 'update', $idea);
+        $idea->update($validated);
+        
         if(!$api){
-            
-            $this->authorize( 'update', $idea);
-            $idea->update($validated);
-
-
+    
             session()->flash('message', 'Idea editada correctamente!');
-
             return redirect(route('idea.index'));
 
         }else{
 
-            $idea->update($validated);
+
             return response()->json([
                 'message' => 'Idea actualizada correctamente',
                 'idea' => $idea
@@ -164,22 +165,16 @@ class IdeaController extends Controller
 
     public function delete(Idea $idea, $api=false)
     {
-        if(!$api){$this->authorize( 'delete', $idea);}
+        $this->authorize( 'delete', $idea);
 
         /** @var \Illuminate\Database\Eloquent\Model $idea */
         $idea->delete();
 
-        /*session()->flash('message', 'Idea eliminada correctamente!');
-
-        return redirect()->route('idea.index');*/
-        
         return response()->json([
             'success' => true,
             'id' => $idea->id,
             'message' => 'Idea eliminada correctamente!'
-        ]);
-
-        
+        ]); 
     }
 
     public function synchronizeLikes(Request $request, Idea $idea)
